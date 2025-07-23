@@ -1,4 +1,4 @@
-FROM frappe/bench:v5.19.0
+FROM frappe/bench:latest
 # https://github.com/frappe/frappe_docker/blob/947fbae8bb051ec85ec2a817b2fa3fe2d9eea779/images/bench/Dockerfile
 # frappe/bench use debian:bookworm-slim as a base image
 # then it install dependencies for bench (python, nodejs)
