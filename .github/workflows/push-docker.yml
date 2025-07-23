@@ -60,7 +60,7 @@ jobs:
           
       - name: Getting app version from image
         run: |
-          v15 > version.txt
+          echo "v15" > version.txt
 
       - name: Formatting and set version variable
         run: python ./scripts/tag_image.py
