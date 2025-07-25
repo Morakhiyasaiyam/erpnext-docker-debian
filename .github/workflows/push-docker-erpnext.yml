@@ -69,4 +69,4 @@ jobs:
           context: .
           push: true
           platforms: linux/arm64
-          tags: morakhiyasaiyam/erpnext-full-stack-debian:version-15-latest
+          tags: morakhiyasaiyam/erpnext-fullstack-debian:version-15-latest
