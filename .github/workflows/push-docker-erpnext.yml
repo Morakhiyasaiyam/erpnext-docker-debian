@@ -1,0 +1,72 @@
+name: build-tag-push
+
+on: workflow_dispatch
+  #schedule:
+    # At 00:00 on Sunday.
+    #- cron: '0 0 * * 0'
+  #push:
+    #branches:
+     # - master
+
+env:
+  IMAGE_REPO: pipech
+  IMAGE_NAME: erpnext-docker-debian
+
+jobs:
+  build-tag-push:
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      matrix:
+        app_branch: [version-15]
+    steps:
+      - name: Generate action image action tag
+        run: echo "IMAGE_ACTION_TAG=${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME }}:${{ github.actor_id }}" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          dockerfile: ./Dockerfile_erpnext
+          platforms: linux/arm64
+          load: true
+          tags: ${{ env.IMAGE_ACTION_TAG }}
+          build-args: |
+            appBranch=${{ matrix.app_branch }}
+
+      - name: Start container
+        run: |
+          docker run -d -p 8000:8000 -p 9000:9000 --name "TEST_CONTAINER" "${{ env.IMAGE_ACTION_TAG }}"
+
+      - name: Wait for 2 minutes and check status
+        run: |
+          sleep 15s
+          docker ps -a
+          docker logs TEST_CONTAINER
+          docker inspect TEST_CONTAINER
+          
+      - name: Getting app version from image
+        run: |
+          echo "v15" > version.txt
+
+      - name: Tag and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64
+          tags: morakhiyasaiyam/erpnext-docker-debian:version-15-latest
