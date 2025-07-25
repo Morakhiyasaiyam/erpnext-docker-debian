@@ -95,19 +95,19 @@ RUN apt-get update \
     && cp /home/$systemUser/mariadb.cnf /etc/mysql/mariadb.cnf \
     && service mariadb start \
     && mariadb --user="root" --password="${mysqlPass}" --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '${mysqlPass}';" \
+USER frappe
     ###############################################
     # Init Bench
     ###############################################
     # && bench init $benchFolderName --frappe-path $frappeRepo --frappe-branch $appBranch --python $pythonVersion \
     # cd into bench folder
-    && cd $benchFolderName \
+    cd $benchFolderName \
     # install erpnext
     # && bench get-app erpnext $erpnextRepo --branch $appBranch \
     # delete temp file
     && rm -rf /tmp/* \
     # start new site
-USER frappe
-RUN bench new-site $siteName \
+RUN && bench new-site $siteName \
     --mariadb-root-password $mysqlPass  \
     --admin-password $adminPass \
     && bench --site $siteName install-app erpnext \
