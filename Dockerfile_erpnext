@@ -107,7 +107,7 @@ RUN apt-get update \
     && rm -rf /tmp/* \
     # start new site
 USER frappe
-    bench new-site $siteName \
+RUN bench new-site $siteName \
     --mariadb-root-password $mysqlPass  \
     --admin-password $adminPass \
     && bench --site $siteName install-app erpnext \
