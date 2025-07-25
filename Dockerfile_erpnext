@@ -31,7 +31,7 @@ ENV \
     frappeRepo="https://github.com/frappe/frappe" \
     erpnextRepo="https://github.com/frappe/erpnext" \
     siteName=site1.local
-
+USER root
 ###############################################
 # Config File
 ###############################################
@@ -42,27 +42,27 @@ COPY --chown=1000:1000 entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # set entrypoint permission
 ## prevent: docker Error response from daemon OCI runtime create failed starting container process caused "permission denied" unknown
-RUN sudo chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ###############################################
 # Install Dependencies
 ###############################################
-RUN sudo apt-get update \
-    && sudo apt-get install -y -q \
+RUN apt-get update \
+    && apt-get install -y -q \
     # [fix] "debconf: delaying package configuration, since apt-utils is not installed"
     apt-utils \
     # [fix] "debconf: unable to initialize frontend: Dialog"
     # https://github.com/moby/moby/issues/27988
-    && echo "debconf debconf/frontend select Noninteractive" | sudo debconf-set-selections \
+    && echo "debconf debconf/frontend select Noninteractive" | debconf-set-selections \
     ###############################################
     # Install dependencies: MariaDB
     ###############################################
-    && sudo apt-get install -y -q apt-transport-https curl \
-    && sudo mkdir -p /etc/apt/keyrings \
-    && sudo curl -o /etc/apt/keyrings/mariadb-keyring.pgp "https://mariadb.org/mariadb_release_signing_key.pgp" \
-    && echo "deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] https://mirror.kku.ac.th/mariadb/repo/10.11/debian bookworm main" | sudo tee /etc/apt/sources.list.d/mariadb.list \
-    && sudo apt-get update \
-    && sudo apt-get install -y -q \
+    && apt-get install -y -q apt-transport-https curl \
+    && mkdir -p /etc/apt/keyrings \
+    && curl -o /etc/apt/keyrings/mariadb-keyring.pgp "https://mariadb.org/mariadb_release_signing_key.pgp" \
+    && echo "deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] https://mirror.kku.ac.th/mariadb/repo/10.11/debian bookworm main" | tee /etc/apt/sources.list.d/mariadb.list \
+    && apt-get update \
+    && apt-get install -y -q \
     mariadb-server \
     mariadb-client \
     mariadb-common \
@@ -71,30 +71,30 @@ RUN sudo apt-get update \
     ###############################################
     # Install dependencies: Redis
     ###############################################
-    && sudo apt-get install -y -q \
+    && apt-get install -y -q \
     redis-server \
     ###############################################
     # Install dependencies: supervisor
     ###############################################
-    && sudo apt-get install -y -q \
+    && apt-get install -y -q \
     supervisor \
     ###############################################
     # Install dependencies: nginx
     ###############################################
-    && sudo apt-get install -y -q \
+    && apt-get install -y -q \
     nginx \
     ###############################################
     # clean-up
     ###############################################
-    && sudo apt-get autoremove --purge -y \
-    && sudo apt-get clean -y \
+    && apt-get autoremove --purge -y \
+    && apt-get clean -y \
     ###############################################
     # Init Bench & Setup Site
     ###############################################
     # copy MariaDB Config
-    && sudo cp /home/$systemUser/mariadb.cnf /etc/mysql/mariadb.cnf \
-    && sudo service mariadb start \
-    && sudo mariadb --user="root" --password="${mysqlPass}" --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '${mysqlPass}';" \
+    && cp /home/$systemUser/mariadb.cnf /etc/mysql/mariadb.cnf \
+    && service mariadb start \
+    && mariadb --user="root" --password="${mysqlPass}" --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '${mysqlPass}';" \
     ###############################################
     # Init Bench
     ###############################################
@@ -104,9 +104,10 @@ RUN sudo apt-get update \
     # install erpnext
     # && bench get-app erpnext $erpnextRepo --branch $appBranch \
     # delete temp file
-    && sudo rm -rf /tmp/* \
+    && rm -rf /tmp/* \
     # start new site
-    && bench new-site $siteName \
+USER frappe
+    bench new-site $siteName \
     --mariadb-root-password $mysqlPass  \
     --admin-password $adminPass \
     && bench --site $siteName install-app erpnext \
