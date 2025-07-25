@@ -101,13 +101,13 @@ USER frappe
     ###############################################
     # && bench init $benchFolderName --frappe-path $frappeRepo --frappe-branch $appBranch --python $pythonVersion \
     # cd into bench folder
-    cd $benchFolderName \
+RUN cd $benchFolderName \
     # install erpnext
     # && bench get-app erpnext $erpnextRepo --branch $appBranch \
     # delete temp file
     && rm -rf /tmp/* \
     # start new site
-RUN && bench new-site $siteName \
+    && bench new-site $siteName \
     --mariadb-root-password $mysqlPass  \
     --admin-password $adminPass \
     && bench --site $siteName install-app erpnext \
