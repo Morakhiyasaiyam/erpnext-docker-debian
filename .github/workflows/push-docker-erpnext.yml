@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          dockerfile: ./Dockerfile_erpnext
+          file: ./Dockerfile_erpnext
           platforms: linux/arm64
           load: true
           tags: ${{ env.IMAGE_ACTION_TAG }}
