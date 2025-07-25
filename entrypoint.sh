@@ -1,6 +1,6 @@
 #!/bin/bash
 {
-  sudo service mariadb start
+  service mariadb start
   bench start
 } || {
   echo "============================================="
