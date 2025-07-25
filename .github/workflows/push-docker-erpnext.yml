@@ -1,4 +1,4 @@
-name: build-tag-push
+name: build-tag-push-erpnext
 
 on: workflow_dispatch
   #schedule:
